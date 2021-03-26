@@ -20,9 +20,9 @@ rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0s
 	
 	<form action="/board/register" method="post">
 	
-		제목 : <input type="text" id="title" name="title"><br>
-		<textarea rows="15" cols="50" name="content"></textarea><br>
-		글쓴이 : <br><input type="text" id="writer" name="writer"><br>
+		제목 : <input type="text" class="form-control"id="title" name="title"><br>
+		<textarea class="form-control" rows="15" cols="50" name="content"></textarea><br>
+		글쓴이 : <br><input type="text" class="form-control" id="writer" name="writer"><br>
 		
 				
 	

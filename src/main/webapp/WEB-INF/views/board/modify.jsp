@@ -11,12 +11,15 @@
 
 	<h1>${board.bno} 번 글 내용</h1>
 
-	<form action="/board/modify" method="post">
+	<form action="/board/modifyrun" method="post">
 		<input type="hidden" name="bno" value="${board.bno}">
+		<input type="hidden" name="page" value="${cri.page}">
+		<input type="hidden" name="searchtype" value="${cri.searchType}">
+		<input type="hidden" name="keyword" value="${cri.keyword}">
 		글쓴이<input type="text" readonly=true name="writer" class="form-control"><br>
-		글제목<input type="text" name="title" class="form-control"><br>
+		글제목<input type="text" name="title" class="form-control" value="${board.title}"><br>
 		본문<br>
-		<textarea class="form-control" name="content"></textarea>
+		<textarea class="form-control" name="content">${board.content}</textarea>
 		등록날짜<input type="text" readonly=true class="form-control" value=${board.regDate}><br>
 		수정날짜<input type="text" readonly=true class="form-control" value=${board.updateDate}><br>
 		

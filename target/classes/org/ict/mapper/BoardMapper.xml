@@ -54,5 +54,56 @@
 				bno = #{bno}
 	</update>
 	
+	<sql id="search">
+	<if test="searchType != null">
+			<if test="searchType == 't'.toString()">
+				and title like CONCAT('%', #{keyword}, '%')
+			</if>
+			<if test="searchType == 'c'.toString()">
+				and content like CONCAT('%', #{keyword}, '%')
+			</if>
+			<if test="searchType == 'w'.toString()">
+				and writer like CONCAT('%', #{keyword}, '%')
+			</if>
+			<if test="searchType == 'cw'.toString()">
+				and (content like CONCAT('%', #{keyword}, '%')
+					OR writer like CONCAT('%', #{keyword}, '%'))
+			</if>
+			<if test="searchType == 'tcw'.toString()">
+				and (title like CONCAT('%', #{keyword}, '%')
+					OR content like CONCAT('%', #{keyword}, '%')
+					OR writer like CONCAT('%', #{keyword}, '%'))
+			</if>
+		</if>
+	</sql>
+	
+	<select id="listPage" resultType="org.ict.domain.BoardVO">
+		<![CDATA[
+			SELECT
+				bno, title, content, writer, regdate, updatedate
+			FROM
+				ictboard
+			WHERE bno > 0
+		]]>
+<!-- 			이부분에 동적 쿼리가 들어갑니다. -->
+		<include refid="search"></include>
+		
+		<![CDATA[
+		
+			ORDER BY bno DESC, regdate DESC
+			limit #{pageStart}, #{number}
+			
+		
+		]]>
+	
+	</select>
+	
+	<select id="countPageNum" resultType="int">
+		<![CDATA[
+			SELECT COUNT(bno) FROM ictboard WHERE bno > 0 
+		]]>
+		<include refid="search"></include>
+		
+	</select>
 
 </mapper>

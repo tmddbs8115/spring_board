@@ -3,6 +3,9 @@ package org.ict.controller;
 import java.util.List;
 
 import org.ict.domain.BoardVO;
+import org.ict.domain.Criteria;
+import org.ict.domain.PageMaker;
+import org.ict.domain.SearchCriteria;
 import org.ict.service.BoardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -34,11 +37,23 @@ public class BoardController {
 	//list라는 이름으로 전체 글 목록을 뷰에 전달합니다.
 	
 	@RequestMapping("/list")
-	public void list(Model model) {
+	//criteria를 선언하면 주소에서 파라미터로 값 전달 가능
+	public void list(BoardVO board, Model model, SearchCriteria cri) {
 		
 		
 		log.info("list");
-		model.addAttribute("list", service.getList());
+		
+		model.addAttribute("board", board.getTitle());
+		model.addAttribute("list", service.getListPage(cri));
+		
+		model.addAttribute("cri", cri);
+		
+		PageMaker pageMaker = new PageMaker();
+		pageMaker.setCri(cri);
+//		pageMaker.setTotalBoard(131);
+		pageMaker.setTotalBoard(service.getCountPage(cri));
+		model.addAttribute("pageMaker", pageMaker);
+		
 		
 		
 		
@@ -87,7 +102,9 @@ public class BoardController {
 	//그 파일 내부에 bno번 글을 표출해주세요
 	
 	@GetMapping("/get")
-	public void get(Long bno, Model model) {
+	public void get(Long bno, Model model, SearchCriteria cri) {
+		
+		model.addAttribute("cri", cri);
 		model.addAttribute("board", service.get(bno));
 		
 	}
@@ -97,13 +114,15 @@ public class BoardController {
 	//수정 창으로 접근하는 .jsp는 get방식으로 접근하지만
 	//실제 수정이 이루어지는 로직은 post방식으로 만듭니다.
 	
-	@GetMapping("/modify")
-	public String modify(Model model, Long bno) {
+	@PostMapping("/modify")
+	public String modify(Model model, SearchCriteria cri, Long bno) {
 		//수정페이지로 넘어가도록 작성해주세요
 		//계획 1.상세 글 정보를 저장합니다.
 		BoardVO board = service.get(bno);
 		//이 정보를 view파일로 전송합니다.
 		model.addAttribute("board", board);
+		model.addAttribute("cri", cri);
+		
 		
 //		model.addAttribute("board", service.get(bno));
 		
@@ -112,15 +131,18 @@ public class BoardController {
 	}
 	
 	
-	@PostMapping("/modify")
-	public String modify(BoardVO board, RedirectAttributes rttr) {
+	@PostMapping("/modifyrun")
+	public String modify(BoardVO board, SearchCriteria cri, RedirectAttributes rttr) {
 		//실제로 수정이 이루어지는 로직후
 		//수정한 글의 상세페이지(get.jsp)로 넘어가게 해주세요.
 
 		service.modify(board);
 		rttr.addFlashAttribute("bno", board.getBno());
 
+		rttr.addAttribute("page", cri.getPage());
 		
+		rttr.addAttribute("searchType", cri.getSearchType());
+		rttr.addAttribute("keyword", cri.getKeyword());
 		
 		return "redirect:/board/get?bno="+board.getBno();
 //		return "redirect:/board/get";
@@ -130,25 +152,31 @@ public class BoardController {
 	//일반테스트시는 get방식을 처리할 수 있도록,
 	//이후 테스트코드로 테스트할때는 post방식을 처리할 수 있도록 합니다.
 	
-	@GetMapping("/remove")
-	public String remove(Long bno, RedirectAttributes rttr) {
+	@PostMapping("/remove")
+	public String remove(Long bno, SearchCriteria cri, Model model, RedirectAttributes rttr) {
 		service.remove(bno);
 		//추후 삭제 완료시 xx번 글이 삭제되었습니다라는
 		//판업을 띄우기 위해 미리 세팅
 		
-		
 		rttr.addFlashAttribute("bno", bno);
+		
+		rttr.addAttribute("page", cri.getPage());
+		rttr.addAttribute("searchType", cri.getSearchType());
+		rttr.addAttribute("keyword", cri.getKeyword());
+		//rttr.addFlashAttribute("bno", bno);
 		//삭제된 글의 디테일 페이지는 존재하지 않음으로 리스트로 이동
 		
 		return "redirect:/board/list";
 	}
 	
-	@PostMapping("/remove")
-	public String remove(Long bno) {
-		service.remove(bno);
-		
-		return "redirect:/board/list";
-	}
+//	@PostMapping("/remove")
+//	public String remove(Long bno) {
+//		service.remove(bno);
+//		
+//		return "redirect:/board/list";
+//	}
+	
+	
 	
 	
 	
